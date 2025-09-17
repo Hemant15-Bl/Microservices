@@ -1,0 +1,38 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: Apigateway-Service	
+  config:
+    import: optional:configserver:http://localhost:8085
+
+  cloud:
+    gateway:
+      routes:
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/auth/**
+
+        - id: USER-SERVICE
+          uri: lb://USER-SERVICE
+          predicates:
+            - Path=/api/v1/user/**
+          filters:
+            - JwtAuthFilter
+
+        - id: HOTEL-SERVICE
+          uri: lb://HOTEL-SERVICE
+          predicates:
+            - Path=/hotel/**,/staffs/**
+          filters:
+            - JwtAuthFilter
+
+        - id: RATING-SERVICE
+          uri: lb://RATING-SERVICE
+          predicates:
+            - Path=/rating/**
+          filters:
+            - JwtAuthFilter
+
+
