@@ -1,0 +1,12 @@
+server:
+  port: 8085
+spring:
+  application:
+    name: Config-Server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/Hemant15-Bl/Config
+          skip-ssl-validation: true
+          clone-on-start: true
