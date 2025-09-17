@@ -1,0 +1,14 @@
+
+server.port: 8083
+spring:
+  application:
+    name: Rating-Service
+  config:
+    import: optional:configserver:http://localhost:8085
+
+  data:
+    mongodb:
+      uri: mongodb://admin:qwerty@localhost:27017
+      database: spring_micro
+      username: admin
+      password: qwerty
