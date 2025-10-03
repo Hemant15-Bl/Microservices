@@ -30,7 +30,7 @@ public class RatingController {
 		return ratservice.addRating(ratingDto);
 	}
 	
-	@PreAuthorize("hasRole('ADMIN')")
+	//@PreAuthorize("hasRole('ADMIN')")
 	@GetMapping("/allratings")
 	public ResponseEntity<List<RatingDto>> getAllData() {
 		return ResponseEntity.ok(ratservice.getRating());

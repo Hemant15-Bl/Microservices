@@ -57,3 +57,5 @@ resilience4j:
         limit-refresh-period: 4s
         limit-for-period: 2
         timeout-duration: 2s
+
+project.image: images/

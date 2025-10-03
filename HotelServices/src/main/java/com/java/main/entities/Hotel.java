@@ -24,6 +24,8 @@ public class Hotel {
 	@Column
 	private String name;
 	@Column
+	private String imageName;
+	@Column
 	private String location;
 	@Column
 	private String about;

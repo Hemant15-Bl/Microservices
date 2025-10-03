@@ -1,5 +1,12 @@
 package com.java.main.services;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import java.util.UUID;
@@ -8,6 +15,7 @@ import java.util.stream.Collectors;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.java.main.entities.Hotel;
 import com.java.main.exception.ResourceNotFound;
@@ -45,6 +53,46 @@ public class HotelServiceImp implements HotelService{
 		
 		Hotel hotel = horepository.findById(hotelId).orElseThrow(() -> new ResourceNotFound("Hotel With Id Not Found !!"));
 		return this.modelMapper.map(hotel, HotelDto.class);
+	}
+
+	@Override
+	public String uploadImage(String path, MultipartFile file) throws IOException {
+		
+		String name = file.getOriginalFilename();
+		
+		String randomId = UUID.randomUUID().toString();
+		
+		String fileName = randomId.concat(name.substring(name.lastIndexOf(".")));
+		
+		String filePath = path + File.separator+ fileName;
+		
+		File file2 = new File(path);
+		if(!file2.exists()) {
+			file2.mkdir();
+		}
+		
+		Files.copy(file.getInputStream(), Paths.get(filePath));
+		return fileName;
+	}
+
+	@Override
+	public InputStream getResource(String path, String fileName) throws FileNotFoundException {
+		String fullPath = path + File.separator+fileName;
+		InputStream inputStream = new FileInputStream(fullPath);
+		return inputStream;
+	}
+
+	@Override
+	public HotelDto updateHotel(String hotelId, HotelDto hotelDto) {
+		HotelDto hotel = getHotel(hotelId);
+		
+		hotel.setName(hotelDto.getName());
+		hotel.setAbout(hotelDto.getAbout());
+		hotel.setLocation(hotelDto.getLocation());
+		hotel.setImageName(hotelDto.getImageName());
+		
+		Hotel saved = this.horepository.save(this.modelMapper.map(hotel, Hotel.class));
+		return this.modelMapper.map(saved, HotelDto.class);
 	}
 
 }

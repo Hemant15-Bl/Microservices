@@ -25,6 +25,8 @@ import com.java.main.services.exception.ApiException;
 import com.java.main.services.payload.JwtAuthRequest;
 import com.java.main.services.payload.UserDto;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/v1/auth")
 public class AuthController {
@@ -63,6 +65,7 @@ public class AuthController {
 		 
 		 JwtAuthResponse response = new JwtAuthResponse();
 		 response.setToken(token);
+		 response.setUserDto(this.modelMapper.map(userDetails, UserDto.class));
 		 
 		 return new ResponseEntity<JwtAuthResponse>(response, HttpStatus.OK);
 	}
@@ -80,7 +83,7 @@ public class AuthController {
 //	}
 	
 	@PostMapping("/signup")
-	public ResponseEntity<UserDto> signUp( @RequestBody UserDto userdto){
+	public ResponseEntity<UserDto> signUp(@Valid @RequestBody UserDto userdto){
 		UserDto register = this.userService.register(userdto);
 		return new ResponseEntity<UserDto>(register, HttpStatus.CREATED);
 	}

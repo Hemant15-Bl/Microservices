@@ -11,6 +11,7 @@ public class HotelDto {
 
 	private String hotelId;
 	private String name;
+	private String imageName;
 	private String location;
 	private String about;
 }
