@@ -50,10 +50,13 @@ Instances currently registered with Eureka:
 
 ## User Panel
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/login.png?raw=true)
+![imahe alt](https://github.com/Hemant15-Bl/Microservices/blob/master/Signup.png?raw=true)
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/user-dashboard.png?raw=true)
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/hotel-1.png?raw=true)
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/rating.png?raw=true)
 ## Admin Panel
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/admin-1.png?raw=true)
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/admin-2.png?raw=true)
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/userupdate.png?raw=true)
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/hotelupdate.png?raw=true)
 
