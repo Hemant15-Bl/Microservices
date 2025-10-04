@@ -45,3 +45,4 @@ The back-end consists of the following services:
   - You can check the status of all registered microservices here. It will show which services are up and running and their corresponding instances.
 Instances currently registered with Eureka:
 
+![image alt](https://github.com/Hemant15-Bl/Microservices/home/Readme.png)
