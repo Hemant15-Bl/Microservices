@@ -45,8 +45,13 @@ The back-end consists of the following services:
   - You can check the status of all registered microservices here. It will show which services are up and running and their corresponding instances.
 Instances currently registered with Eureka:
 
+## Home Page
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/home.png?raw=true)
+## User Panel
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/user-dashboard.png?raw=true)
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/hotel-1.png?raw=true)
+
+## Admin Panel
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/admin-1.png?raw=true)
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/admin-2.png?raw=true)
 
