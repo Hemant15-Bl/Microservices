@@ -1,66 +1,43 @@
-<<<<<<< HEAD
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
-=======
 # Hotel Rating System
-Welcome to the Hotel Rating System Microservices project. This application is designed to manage various aspects of a hotel, including adding hotels, and handling user ratings.
+Welcome to the Hotel Rating System Microservices project. This is a full-stack application built using a microservices architecture, the application facilitates a [hotel rating system] where users can register, view hotel information, and submit ratings. The front-end is developed with React.js and Vite, providing a fast and modern user experience.
 
-## Features
-This application provides the following features:
+## Architecture
+The application is composed of several independent microservices that communicate with each other over well-defined APIs. An API Gateway handles all incoming requests and routes them to the appropriate service, while a Config Server manages the centralized configuration for all microservices.
 
-### User Service
- - User registration and authentication.
- - User can book hotel rooms.
- - User can rate hotels.
+## Services
+The back-end consists of the following services:
 
-### Hotel Service
- - Add hotels with details.
- - Add rooms to hotels.
- - Get hotel details by ID.
- - Get a list of all booked rooms in a hotel.
+### 1. User Service
+-   **Description:** Manages all user-related data and operations, including registration, login, and user profile management.
+-   **Endpoint:** `http://localhost:8081/api/v1/auth`, `http://localhost:8081/api/v1/user`
 
-### Rating Service
- - Add ratings and reviews for hotels.
- - Get all ratings.
- - Get ratings by user ID or hotel ID.
+### 2. Hotel Service
+-   **Description:** Handles information related to hotels, such as listings, details, and availability.
+-   **Endpoint:** `http://localhost:8082/hotel`
 
-### Service Registry
- - Register and discover microservices.
+### 3. Rating Service
+-   **Description:** Stores and retrieves user-submitted ratings and reviews for hotels.
+-   **Endpoint:** `http://localhost:8083/rating`
 
-### Configuration Server
- - Manage centralized configurations for microservices.
+### 4. Config Server
+-   **Description:** Centralized configuration management for all microservices. Services retrieve their configuration from this server at startup.
+-   **Endpoint:** `http://localhost:8085/config`
 
-### API Gateway
- - Gateway for accessing microservices.
+### 5. API Gateway
+-   **Description:** The single entry point for all client requests. It routes requests to the appropriate microservice, providing cross-cutting concerns like security, monitoring, and resiliency.
+-   **Endpoint:** `http://localhost:8084`
 
-## Tech Stack
- - Java
- - Spring Boot
- - Spring Cloud
- - Spring Cloud Eureka
- - Spring Cloud Config
- - Spring Security
- - Jwt Authentication
- - Spring Data JPA
- - Spring Web
- - Spring Data MongoDB
- - Spring Data REST
- - Spring Cloud Gateway
- - Netflix Eureka
- - MySQL
- - MongoDB
- - PostgreSQL
- - GitHub
+## Technologies Used
+**Back-End:**
+-   back-end framework :- Java, Spring Boot, Spring Security, Jwt Authentication, Spring Cloud Eureka, etc.
+-   database technologies :- MySQL, PostgreSQL and MongoDB
+-   Using RestTemplate for restful communication with eachother
+
+**Front-End:**
+-   **React.js:** A JavaScript library for building user interfaces.
+-   **Vite:** A fast build tool for front-end development.
+-   **UI Library, React-Router-DOM, React-Toastify, React-Axios, ReactStrap, Bootstrap CSS, etc.**
+
 
 ## Checking Service Status
 #### - Eureka Server:
@@ -68,25 +45,3 @@ This application provides the following features:
   - You can check the status of all registered microservices here. It will show which services are up and running and their corresponding instances.
 Instances currently registered with Eureka:
 
-#### - API-GATEWAY:
-
- - Availability Zones: UP (1) - DESKTOP-5G4FEQU:Apigateway-Service:8084
-
-#### - CONFIG-SERVER:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Config-Server:8085
-
-#### - HOTELS-SERVICE:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Hotel-Service:8082
-
-#### - RATING-SERVICE:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Rating-Service:8083
-
-#### - USERS-SERVICE:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Employee-Registry:8081
-#### - API Gateway Default URL: http://localhost:8084
-
->>>>>>> 1e5c91f16298224ab23cc71cc31b552468aca7e5
