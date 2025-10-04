@@ -46,6 +46,7 @@ The back-end consists of the following services:
 Instances currently registered with Eureka:
 
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/home.png?raw=true)
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/user-dashboard.png?raw=true)
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/admin-1.png?raw=true)
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/admin-2.png?raw=true)
 
