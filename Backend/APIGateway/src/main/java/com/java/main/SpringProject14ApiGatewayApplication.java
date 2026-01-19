@@ -7,7 +7,6 @@ import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-//@ComponentScan(basePackages = "com.java.main.security")
 public class SpringProject14ApiGatewayApplication {
 	
 	public static void main(String[] args) {

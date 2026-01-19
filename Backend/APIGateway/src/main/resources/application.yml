@@ -1,40 +1,86 @@
 server:
   port: 8084
+
 spring:
   application:
-    name: Apigateway-Service	
+    name: APIGATEWAY-SERVICE
+
   config:
     import: optional:configserver:http://localhost:8085
 
-  cloud:
-    gateway:
-      routes:
-        - id: USER-SERVICE-AUTH
-          uri: lb://USER-SERVICE
-          predicates:
-            - Path=/api/v1/auth/**
-          filters: []
+  main:
+    web-application-type: reactive
 
-        - id: USER-SERVICE-USER
+  cloud:
+    discovery:
+      enabled: true
+
+    gateway:
+      default-filters:
+        - TokenRelay   # this is a magical token provider for each server
+
+#------- Routing for each downstream services ------------------
+      routes:
+        - id: AUTH-SERVICE
+          uri: lb://AUTH-SERVICE
+          predicates:
+            - Path=/api/v4/**
+
+        - id: USER-SERVICE
           uri: lb://USER-SERVICE
           predicates:
-            - Path=/api/v1/user/**
+            - Path=/api/v1/user/**, /api/v1/admin/**
           filters:
-            - JwtAuthFilter
+          - name: RequestRateLimiter
+            args:
+              key-resolver: '#{@userKeyResolver}'
+              redis-rate-limiter.replenishRate: 10
+              redis-rate-limiter.burstCapacity: 20
 
         - id: HOTEL-SERVICE
           uri: lb://HOTEL-SERVICE
           predicates:
-            - Path=/hotel/**,/staffs/**
-          filters:
-            - JwtAuthFilter
+            - Path=/api/v2/hotel/**,/staffs/**
 
         - id: RATING-SERVICE
           uri: lb://RATING-SERVICE
           predicates:
-            - Path=/rating/**
-          filters:
-            - JwtAuthFilter
+            - Path=/api/v3/rating/**
 
-#      globalcors:
-#        add-to-simple-url-handler-mapping: true
+# ------------ caching strategy
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+#-------------- oauth2 properties --------------------
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8086
+      client:
+        registration:
+          my-gateway-client:
+            provider: my-auth-server   #custom name
+            client-id: my-gateway-client
+            client-secret: secret
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - openid
+              - profile
+              - email
+              - api.read
+        provider:
+          my-auth-server:   #same name as above custom provider-name
+            issuer-uri: http://localhost:8086
+
+  session:
+    timeout: 24h
+
+#--------- checking health remove redis when running in localhost------------ 
+management:
+  health:
+    redis:
+      enabled: false

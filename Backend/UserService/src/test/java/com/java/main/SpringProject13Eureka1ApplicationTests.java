@@ -2,6 +2,7 @@ package com.java.main;
 
 import org.junit.jupiter.api.Test;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -18,12 +19,12 @@ class SpringProject13Eureka1ApplicationTests {
 //	@Autowired
 //	private RatingService ratingService;
 //	
-	@Test
-	void createRating() {
+//	@Test
+//	void createRating() {
 //		Rating rat = Rating.builder().rating(10).employeeId("").hotelId("").feedback("This is created by feign client for testing.").build();
 //		Rating rate = ratingService.createRating(rat);
 //		System.out.println("\tRating Created Successfully!");
-	}
+//	}
 	
 //	@Test
 //	void updateRating(String ratingid, Rating rating) {

@@ -48,16 +48,16 @@ public class UserDto {
 	
 	private String imageName;
 	
-	private Set<Role> roles = new HashSet<>();
+	private List<Role> roles = new ArrayList<>();
 	private List<RatingDto> rating = new ArrayList<RatingDto>();
 	
-	@JsonIgnore
-	public String getPassword() {
-		return this.password;
-	}
-	
-	@JsonProperty
-	public void setPassword(String password) {
-		this.password = password;
-	}
+//	@JsonIgnore
+//	public String getPassword() {
+//		return this.password;
+//	}
+//	
+//	@JsonProperty
+//	public void setPassword(String password) {
+//		this.password = password;
+//	}
 }

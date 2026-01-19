@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.java.main.entities.Rating;
+import com.java.main.exception.ResourceNotFoundException;
 import com.java.main.payload.RatingDto;
 import com.java.main.repository.RatingRepository;
 
@@ -53,6 +54,23 @@ public class RatingServiceImp implements RatingService{
 		
 		List<RatingDto> list = hotelLiist.stream().map(hotel -> (this.modelMapper.map(hotel, RatingDto.class))).collect(Collectors.toList());
 		return list;
+	}
+
+	@Override
+	public void removedRating(String ratingId) {
+		this.ratrepository.deleteById(ratingId);
+	}
+
+	@Override
+	public RatingDto getRatingById(String ratingId) {
+		
+		Rating rating = this.ratrepository.findById(ratingId).orElseThrow(() -> new ResourceNotFoundException("No rating available with ratingId: "+ratingId));
+		return this.modelMapper.map(rating, RatingDto.class);
+	}
+
+	@Override
+	public void removeRatingByUserId(String userId) {
+		this.ratrepository.deleteByUserId(userId);
 	}
 
 }

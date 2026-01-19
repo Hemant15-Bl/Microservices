@@ -7,9 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -17,10 +19,9 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.java.main.services.exception.ResourceNotFoundException;
@@ -28,12 +29,13 @@ import com.java.main.services.payload.AppConstant;
 import com.java.main.services.payload.HotelDto;
 import com.java.main.services.payload.RatingDto;
 import com.java.main.services.payload.UserDto;
+import com.java.main.entites.Hotel;
 import com.java.main.entites.Rating;
 import com.java.main.entites.Role;
 import com.java.main.entites.User;
 
 import com.java.main.externalservices.HotelService;
-
+import com.java.main.externalservices.RatingService;
 import com.java.main.repository.RoleRepository;
 import com.java.main.repository.UserRepository;
 
@@ -43,12 +45,13 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	private UserRepository userRepository;
 
-	@Autowired
-	private RestTemplate restTemplate;
 
 	@Autowired
 	private HotelService hotelService;
-
+	
+	@Autowired
+	private RatingService ratingService;
+	
 	private Logger logger = LoggerFactory.getLogger(UserServiceImp.class);
 
 	@Autowired
@@ -60,23 +63,23 @@ public class UserServiceImp implements UserService {
 	@Autowired
 	private ModelMapper modelMapper;
 
-	@Override
-	public UserDto addUser(UserDto userDto) {
-		User user = this.modelMapper.map(userDto, User.class);
-
-		String randomid = UUID.randomUUID().toString();
-
-		user.setUserId(randomid);
-		
-		user.setImageName("default-avatar.jpg");
-		
-		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-
-		Role role = this.roleRepo.findById(AppConstant.ADMIN_USER).get();
-		user.getRoles().add(role);
-		User saved = userRepository.save(user);
-		return this.modelMapper.map(saved, UserDto.class);
-	}
+//	@Override
+//	public UserDto addUser(UserDto userDto) {
+//		User user = this.modelMapper.map(userDto, User.class);
+//
+//		String randomid = UUID.randomUUID().toString();
+//
+//		user.setUserId(randomid);
+//		
+//		user.setImageName("default-avatar.jpg");
+//		
+//		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+//
+//		Role role = this.roleRepo.findById(AppConstant.ADMIN_USER).get();
+//		user.getRoles().add(role);
+//		User saved = userRepository.save(user);
+//		return this.modelMapper.map(saved, UserDto.class);
+//	}
 
 	@Override
 	public List<UserDto> getAllUser() {
@@ -95,21 +98,18 @@ public class UserServiceImp implements UserService {
 				(() -> new ResourceNotFoundException("User with given id " + id + " is not found on server!!")));
 
 		logger.info("User Name :{} ", user.getName());
-		RatingDto[] ratingOfUser = restTemplate.getForObject("http://RATING-SERVICE/rating/users/" + user.getUserId(),
-				RatingDto[].class);
-		logger.info("{} : ", ratingOfUser);
-
-		List<RatingDto> ratings = Arrays.stream(ratingOfUser).toList();
+		
+		List<RatingDto> ratings = this.ratingService.getRating(user.getUserId());
+		
+//		List<RatingDto> ratings = Arrays.stream(ratingOfUser).toList();
 
 		List<RatingDto> ratinglist = ratings.stream().map(rating -> {
-			// http://localhost:8082/hotels/7578bd67-cfb8-4cea-88cc-56d630cf8bef
-			// RatingDto rat = new RatingDto();
-//			HotelDto forEntity = restTemplate.getForObject("http://HOTEL-SERVICE/hotel/"+rating.getHotelId(), HotelDto.class);
-//			Hotel hotel = forentity.getBody();
-//			logger.info("response status code: ", forentity.getStatusCode());
-			HotelDto hotel = hotelService.gethotel(rating.getHotelId());
-
-			rating.setHotel(hotel);
+			
+			Hotel hotel = hotelService.gethotel(rating.getHotelId());
+			
+			HotelDto hotelDto = this.modelMapper.map(hotel, HotelDto.class);
+			
+			rating.setHotel(hotelDto);
 			return rating;
 		}).collect(Collectors.toList());
 
@@ -119,18 +119,38 @@ public class UserServiceImp implements UserService {
 		return this.modelMapper.map(user, UserDto.class);
 	}
 
+	@Transactional
 	@Override
 	public UserDto register(UserDto userdto) {
+		
+
+		if (userdto.getRoles() != null && !userdto.getRoles().isEmpty()) {
+			List<Role> roles = userdto.getRoles().stream().map(r -> {
+	            Role role = this.roleRepo.findByName(r.getName())
+	                .orElseThrow(() -> new ResourceNotFoundException("Role Name ,"+ r.getName()));
+	            return role;
+	        }).collect(Collectors.toList());
+			
+			for(Role r: roles) {
+				System.out.println("Role name from roles : "+r.getName());
+				System.out.println("Role id from roles : "+r.getId());
+				
+			}
+			userdto.getRoles().clear();
+			userdto.getRoles().addAll(roles);
+	    } else {
+	        // Default Role (Hardcoded 501 for Normal User)
+	        Role defaultRole = this.roleRepo.findById(501).orElseThrow(() -> new ResourceNotFoundException("Role ID 501"));
+	        userdto.setRoles(new ArrayList<>());
+	        userdto.getRoles().add(defaultRole);
+	    }
+		
 		User user = this.modelMapper.map(userdto, User.class);
 
 		String randomid = UUID.randomUUID().toString();
 		user.setUserId(randomid);
 		user.setImageName("default-avatar.jpg");
 		user.setPassword(this.passwordEncoder.encode(user.getPassword()));
-
-		Role role = this.roleRepo.findById(AppConstant.NORMAL_USER).get();
-
-		user.getRoles().add(role);
 
 		User save = this.userRepository.save(user);
 		return this.modelMapper.map(save, UserDto.class);
@@ -157,8 +177,19 @@ public class UserServiceImp implements UserService {
 
 	@Override
 	public InputStream getResource(String path, String fileName) throws FileNotFoundException {
-
+		//Safety check when authdb has imageName or frontend send fileName as imageName
+		if(fileName==null || fileName.equals("imageName") || fileName.isEmpty()) {
+			fileName = "default-avatar.jpg";
+		}
+		
 		String fullPath = path + File.separator + fileName;
+		File file = new File(fullPath);
+		
+		if(!file.exists()) {
+			logger.error("File not found: {}", fullPath);
+			return new FileInputStream(path + File.separator + "default-avatar.jpg");
+		}
+		
 		InputStream inputStream = new FileInputStream(fullPath);
 		return inputStream;
 	}
@@ -177,6 +208,31 @@ public class UserServiceImp implements UserService {
 
 		User save = this.userRepository.save(user);
 		return this.modelMapper.map(save, UserDto.class);
+	}
+
+	@Override
+	public UserDto getUserByUsername(String username) {
+		User user = this.userRepository.findByEmail(username).orElseThrow(() -> new ResourceNotFoundException("User with given id " + username + " is not found on server!!"));
+		return this.modelMapper.map(user, UserDto.class);
+	}
+
+	@Transactional
+	@Override
+	public void removeUserData(String userId) {
+		User user = userRepository.findById(userId).orElseThrow(
+				(() -> new ResourceNotFoundException("User with given id " + userId + " is not found on server!!")));
+		try {
+			this.ratingService.removeRating(userId);
+			System.out.println("Successfully cleared MongoDB ratings for user: " + userId);
+		}catch (Exception e) {
+	        throw new RuntimeException("Could not clear ratings from MongoDB. Delete aborted.");
+		}
+		
+		// Clear join table references first
+		user.getRoles().clear();
+		this.userRepository.save(user);
+		
+		userRepository.delete(user);
 	}
 
 }

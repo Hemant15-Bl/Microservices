@@ -1,36 +1,28 @@
 package com.java.main.services.config;
 
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 
 import feign.RequestInterceptor;
-import feign.RequestTemplate;
-import jakarta.servlet.http.HttpServletRequest;
 
 @Component
 public class FeignClientInterceptorConfig {
-
+	
 	@Bean
-    public RequestInterceptor requestInterceptor() {
-        return new RequestInterceptor() {
-            @Override
-            public void apply(RequestTemplate template) {
-                ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-
-                if (attributes != null) {
-                    HttpServletRequest request = attributes.getRequest();
-
-                    String authHeader = request.getHeader("Authorization");
-
-                    if (authHeader != null && !authHeader.isEmpty()) {
-                        // Add the Authorization header to the Feign request
-                        template.header("Authorization", authHeader);
-                    }
-                }
-            }
-
-        };
-    }
+	public RequestInterceptor resInterceptor() {
+	    return template -> {
+	        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+	        
+	        if (authentication != null && authentication.getCredentials() instanceof Jwt jwt) {
+	            String token = jwt.getTokenValue();
+	            template.header("Authorization", "Bearer " + token);
+	            System.out.println("Token forwarded successfully from SecurityContext!");
+	        } else {
+	            System.err.println("Fallback triggered or SecurityContext empty - No token found.");
+	        }
+	    };
+	}
 }

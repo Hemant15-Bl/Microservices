@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: HOTEL-SERVICE
+  cloud:
+    config:
+      uri: http://localhost:8085

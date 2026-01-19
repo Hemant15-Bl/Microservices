@@ -11,3 +11,7 @@ eureka:
     register-with-eureka: false
   instance:
     hostname: localhost
+#    prefer-ip-address: true
+  server:
+    enable-self-preservation: false
+    eviction-interval-timer-in-ms: 5000

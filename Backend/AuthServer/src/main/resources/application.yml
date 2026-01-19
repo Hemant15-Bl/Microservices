@@ -1,0 +1,34 @@
+server:
+  port: 8086
+
+  servlet:
+    session:
+      timeout: 24h
+
+spring:
+  application:
+    name: AUTH-SERVICE
+
+  config:
+    import: optional:configserver:http://localhost:8085
+#  cloud:
+#    config:
+#      fail-fast: true
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/Spring_micro
+    username: postgres
+    password: root
+
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG

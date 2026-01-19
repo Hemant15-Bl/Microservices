@@ -2,7 +2,7 @@ server:
   port: 8085
 spring:
   application:
-    name: Config-Server
+    name: CONFIG-SERVER
   cloud:
     config:
       server:
@@ -10,3 +10,14 @@ spring:
           uri: https://github.com/Hemant15-Bl/Config
           skip-ssl-validation: true
           clone-on-start: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: always

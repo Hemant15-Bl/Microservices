@@ -95,4 +95,9 @@ public class HotelServiceImp implements HotelService{
 		return this.modelMapper.map(saved, HotelDto.class);
 	}
 
+	@Override
+	public void removeHotel(String hotelId) {
+		this.horepository.deleteById(hotelId);
+	}
+
 }

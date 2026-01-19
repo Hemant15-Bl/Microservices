@@ -16,5 +16,13 @@ public interface RatingService {
 	
 		//get all rating by Hotel Id
 	public	List<RatingDto> getHotelRating(String hotelId);
-		
+
+	//remove rating by id
+	public void removedRating(String ratingId);
+	
+	//get rating by ratingId
+	public RatingDto getRatingById(String ratingId);
+	
+	// delete rating by userId
+	public void removeRatingByUserId(String userId);
 }

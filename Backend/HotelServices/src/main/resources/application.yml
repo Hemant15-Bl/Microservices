@@ -1,6 +1,6 @@
 spring:
   application:
-    name: Hotel-Service
+    name: HOTEL-SERVICE
   config:
     import: optional:configserver:http://localhost:8085
 
@@ -14,7 +14,22 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8086
+
 server:
   port: 8082
 
 project.image: image/
+
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: "*"
+#  endpoint:
+#    health:
+#      show-details: always
