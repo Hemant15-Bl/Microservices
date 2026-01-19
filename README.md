@@ -3,18 +3,16 @@ Welcome to the Hotel Rating System. This is a distributed full-stack application
 
 ## 🏗️ Project Structure
 The repository is organized into two main sections:
-
 - /Backend: Spring Boot microservices, security, and infrastructure.
-
 - /Frontend: React.js application for users and admins.
 
 ## 🛠️ Tech Stack
-- Category  Technologies
-- Backend   Java 17+, Spring Boot 3.x, Maven
-- Microservices Spring Cloud (Eureka, Config Server, API Gateway)
-- SecuritySpring Security, JWT, OAuth2 (AuthServer)
-- Frontend React.js, Vite, Axios, Bootstrap/Tailwind
-- Databases MySQL (Users), MongoDB (Ratings), PostgreSQL(Hotels/Auth)
+- Category          Technologies
+- Backend           Java 17+, Spring Boot 3.x, Maven
+- Microservices     Spring Cloud (Eureka, Config Server, API Gateway)
+- SecuritySpring    Security, JWT, OAuth2 (AuthServer)
+- Frontend          React.js, Vite, Axios, Bootstrap/Tailwind
+- Databases         MySQL (Users), MongoDB (Ratings), PostgreSQL(Hotels/Auth)
 
 ## 📡 Microservices Architecture
 ### Core Services
