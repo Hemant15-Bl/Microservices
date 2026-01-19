@@ -83,5 +83,3 @@ npm run dev
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/hotels.png?raw=true)
 
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/ratings.png?raw=true)
-
-![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/View-hotel-user.png?raw=true)
