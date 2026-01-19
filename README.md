@@ -1,77 +1,53 @@
-# Hotel Rating System
-Welcome to the Hotel Rating System Microservices project. This application is designed to manage various aspects of a hotel, including adding hotels, and handling user ratings.
+# 🏨 Hotel Rating Microservices System
+Welcome to the Hotel Rating System. This is a distributed full-stack application built using a Microservices architecture. It allows users to discover hotels, manage bookings, and provide ratings through a modern React interface, secured by a dedicated OAuth2/JWT Authentication server.
 
-## Features
-This application provides the following features:
+## 🏗️ Project Structure
+The repository is organized into two main sections:
 
-### User Service
- - User registration and authentication.
- - User can book hotel rooms.
- - User can rate hotels.
+- /Backend: Spring Boot microservices, security, and infrastructure.
 
-### Hotel Service
- - Add hotels with details.
- - Add rooms to hotels.
- - Get hotel details by ID.
- - Get a list of all booked rooms in a hotel.
+- /Frontend: React.js application for users and admins.
 
-### Rating Service
- - Add ratings and reviews for hotels.
- - Get all ratings.
- - Get ratings by user ID or hotel ID.
+## 🛠️ Tech Stack
+- Category  Technologies
+- Backend   Java 17+, Spring Boot 3.x, Maven
+- Microservices Spring Cloud (Eureka, Config Server, API Gateway)
+- SecuritySpring Security, JWT, OAuth2 (AuthServer)
+- Frontend React.js, Vite, Axios, Bootstrap/Tailwind
+- Databases MySQL (Users), MongoDB (Ratings), PostgreSQL(Hotels/Auth)
 
-### Service Registry
- - Register and discover microservices.
+## 📡 Microservices Architecture
+### Core Services
+1. AuthServer (Port: 8086): Dedicated service for issuing JWT tokens and handling User Authentication.
+2. API Gateway (Port: 8084): The single entry point for the Frontend. Handles routing and security filtering.
+3. Config Server (Port: 8085): Centralized configuration management for all services.
+4. Service Registry (Port: 8761): Netflix Eureka server for service discovery.
 
-### Configuration Server
- - Manage centralized configurations for microservices.
+### Business Services
+- User Service (8081): Manages user profiles and booking history.
+- Hotel Service (8082): Handles hotel inventory and room details.
+- Rating Service (8083): Manages hotel reviews and ratings (NoSQL).
 
-### API Gateway
- - Gateway for accessing microservices.
+## 💻 Frontend Features (React)
+- Modern UI: Redesigned Home, About, and Contact pages.
+- Secure Access: Integrated with AuthServer for Login/Signup.
+- Dynamic Dashboard: Users can view and rate hotels in real-time.
+- Admin Panel: Dedicated routes for adding hotels and managing inventory.
 
-## Tech Stack
- - Java
- - Spring Boot
- - Spring Cloud
- - Spring Cloud Eureka
- - Spring Cloud Config
- - Spring Security
- - Jwt Authentication
- - Spring Data JPA
- - Spring Web
- - Spring Data MongoDB
- - Spring Data REST
- - Spring Cloud Gateway
- - Netflix Eureka
- - MySQL
- - MongoDB
- - PostgreSQL
- - GitHub
+## 🚀 Getting Started
+### 1. Backend Setup
+1. Start Service Registry (Eureka) first.
+2. Start Config Server.
+3. Start AuthServer.
+4. Start the remaining microservices (User, Hotel, Rating, Gateway).
+### 2. Frontend Setup
+Bash
 
-## Checking Service Status
-#### - Eureka Server:
- - Eureka Dashboard: http://localhost:8761
-  - You can check the status of all registered microservices here. It will show which services are up and running and their corresponding instances.
-Instances currently registered with Eureka:
+cd Frontend
+npm install
+npm run dev
 
-#### - API-GATEWAY:
-
- - Availability Zones: UP (1) - DESKTOP-5G4FEQU:Apigateway-Service:8084
-
-#### - CONFIG-SERVER:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Config-Server:8085
-
-#### - HOTELS-SERVICE:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Hotel-Service:8082
-
-#### - RATING-SERVICE:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Rating-Service:8083
-
-#### - USERS-SERVICE:
-
-- Availability Zones: UP (1) - DESKTOP-5G4FEQU:Employee-Registry:8081
-#### - API Gateway Default URL: http://localhost:8084
-
+## Service Endpoints
+- Eureka Dashboard: http://localhost:8761
+- API Gateway: http://localhost:8084
+- Frontend UI: http://localhost:5173 (Vite)
