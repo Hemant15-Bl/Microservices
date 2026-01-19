@@ -53,4 +53,4 @@ npm run dev
 
 # OAuth2.O Authorization Flow Block-Diagram
 
-![image](https://github.com/Screenshot 2026-01-02 103702.png/assets/...)
+![image]([https://github.com/Screenshot 2026-01-02 103702.png/assets/...](https://github.com/Hemant15-Bl/Microservices/blob/master/Screenshot%202026-01-02%20103702.png?raw=true))
