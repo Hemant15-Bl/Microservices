@@ -1,4 +1,4 @@
-# 🏨 Hotel Rating Microservices System
+# 🏨 Hotel Rating System
 Welcome to the Hotel Rating System. This is a distributed full-stack application built using a Microservices architecture. It allows users to discover hotels, manage bookings, and provide ratings through a modern React interface, secured by a dedicated OAuth2/JWT Authentication server.
 
 ## 🏗️ Project Structure
