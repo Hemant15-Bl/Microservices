@@ -10,13 +10,19 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fortawesome/free-brands-svg-icons": "^7.1.0",
+    "@fortawesome/free-regular-svg-icons": "^7.1.0",
+    "@fortawesome/free-solid-svg-icons": "^7.1.0",
+    "@fortawesome/react-fontawesome": "^3.1.1",
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
+    "oidc-client-ts": "^3.4.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-router-dom": "^7.9.1",
     "react-toastify": "^11.0.5",
-    "reactstrap": "^9.2.3"
+    "reactstrap": "^9.2.3",
+    "sweetalert2": "^11.26.17"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

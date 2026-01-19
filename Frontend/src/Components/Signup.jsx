@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { register } from '../services/User-service';
+import { registerByAdmin } from '../services/User-service';
 import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Form, FormFeedback, FormGroup, Input, Label, Row } from 'reactstrap';
 import Base from './Base';
 import { data, } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock, faMapMarkerAlt, faPhone, faUser, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 
 const Signup = () => {
 
@@ -12,7 +14,8 @@ const Signup = () => {
         email: '',
         password: '',
         contactNo: '',
-        address: ''
+        address: '',
+        roles: [{name:'ROLE_NORMAL'}]
     });
 
     const [error, setError] = useState({
@@ -25,23 +28,28 @@ const Signup = () => {
             email: '',
             password: '',
             contactNo: '',
-            address: ''
+            address: '',
+            roles:[{name:'ROLE_NORMAL'}]
         });
     };
     const handleForm = (e, fieldName) => {
+        if (fieldName === 'roles') {
+            setUser({...user, roles:[{name: e.target.value}]});
+        }else{
         setUser({ ...user, [fieldName]: e.target.value });
+        }
     };
 
     const submitRegister = (event) => {
         event.preventDefault();
 
-        register(user).then(data => {
-            console.log(data);
+        registerByAdmin(user).then(data => {
+            // console.log(data);
             toast.success("User Register Successfully !");
             resetForm();
         }).catch(err => {
             setError({ error: err, isError: true })
-            console.log(error);
+            console.error(error);
             toast.error("Something went wrong !!");
         });
     };
@@ -51,87 +59,151 @@ const Signup = () => {
 
         <Base>
 
-            <div className="container mt-5 shadow-3" style={{ marginBottom: "5%", fontFamily: "serif" }}>
-                <Row className="mt-4">
+            <Container className="py-5">
+                <Row className="justify-content-center">
+                    <Col md={10} lg={8}>
+                        {/* Custom breadcrumb for Admin context */}
+                        <div className="mb-4">
+                            <h2 className="fw-bold text-dark">
+                                <FontAwesomeIcon icon={faUserPlus} className="me-2 text-info" />
+                                Create New Account
+                            </h2>
+                            <p className="text-muted">Register a new user to the system manually.</p>
+                        </div>
 
-                    <Col sm={{ size: 8, offset: 2 }}>
-
-                        <Card color="#fff" style={{ border: "1px solid #0dcaf0" }}>
-
-                            <CardHeader className="border-1 text-white" color='dark' style={{ backgroundColor: "#0dcaf0" }}>
-                                <h3>Sign up here !!</h3>
-                            </CardHeader>
-
-                            {/* {JSON.stringify(user)} */}
-                            <CardBody>
+                        <Card className="border-0 shadow-lg" style={{ borderRadius: '15px' }}>
+                            <CardBody className="p-4 p-md-5">
                                 <Form onSubmit={submitRegister}>
-
-                                    <FormGroup row>
-                                        <Label for="exampleName" sm={3}>Name*</Label>
-                                        <Col sm={9}>
-                                            <Input type="text" name="name" value={user.name} placeholder="Ex: albert john" onChange={(e) => { handleForm(e, "name") }}
-                                                invalid={error?.error?.response?.data?.name ? true : false} />
-                                            <FormFeedback>
-                                                {error.error?.response?.data?.name}
-                                            </FormFeedback>
+                                    <Row>
+                                        {/* Full Name */}
+                                        <Col md={6}>
+                                            <FormGroup className="mb-4">
+                                                <Label className="small fw-bold text-uppercase text-muted">
+                                                    <FontAwesomeIcon icon={faUser} className="me-2" />Full Name
+                                                </Label>
+                                                <Input
+                                                    type="text"
+                                                    className="form-control-lg border-2 shadow-sm"
+                                                    placeholder="e.g. John Doe"
+                                                    value={user.name}
+                                                    onChange={(e) => handleForm(e, "name")}
+                                                    invalid={!!error?.error?.response?.data?.name}
+                                                />
+                                                <FormFeedback>{error.error?.response?.data?.name}</FormFeedback>
+                                            </FormGroup>
                                         </Col>
+
+                                        {/* Email Address */}
+                                        <Col md={6}>
+                                            <FormGroup className="mb-4">
+                                                <Label className="small fw-bold text-uppercase text-muted">
+                                                    <FontAwesomeIcon icon={faEnvelope} className="me-2" />Email Address
+                                                </Label>
+                                                <Input
+                                                    type="email"
+                                                    className="form-control-lg border-2 shadow-sm"
+                                                    placeholder="john@example.com"
+                                                    value={user.email}
+                                                    onChange={(e) => handleForm(e, "email")}
+                                                    invalid={!!error?.error?.response?.data?.email}
+                                                />
+                                                <FormFeedback>{error.error?.response?.data?.email}</FormFeedback>
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
+
+                                    <Row>
+                                        {/* Password */}
+                                        <Col md={6}>
+                                            <FormGroup className="mb-4">
+                                                <Label className="small fw-bold text-uppercase text-muted">
+                                                    <FontAwesomeIcon icon={faLock} className="me-2" />Secure Password
+                                                </Label>
+                                                <Input
+                                                    type="password"
+                                                    className="form-control-lg border-2 shadow-sm"
+                                                    placeholder="••••••••"
+                                                    value={user.password}
+                                                    onChange={(e) => handleForm(e, "password")}
+                                                    invalid={!!error?.error?.response?.data?.password}
+                                                />
+                                                <FormFeedback>{error.error?.response?.data?.password}</FormFeedback>
+                                            </FormGroup>
+                                        </Col>
+
+                                        {/* Contact Number */}
+                                        <Col md={6}>
+                                            <FormGroup className="mb-4">
+                                                <Label className="small fw-bold text-uppercase text-muted">
+                                                    <FontAwesomeIcon icon={faPhone} className="me-2" />Contact Number
+                                                </Label>
+                                                <Input
+                                                    type="tel"
+                                                    className="form-control-lg border-2 shadow-sm"
+                                                    placeholder="+1 234 567 890"
+                                                    value={user.contactNo}
+                                                    onChange={(e) => handleForm(e, "contactNo")}
+                                                    invalid={!!error?.error?.response?.data?.contactNo}
+                                                />
+                                                <FormFeedback>{error.error?.response?.data?.contactNo}</FormFeedback>
+                                            </FormGroup>
+                                        </Col>
+                                    </Row>
+
+                                    {/* Physical Address */}
+                                    <FormGroup className="mb-5">
+                                        <Label className="small fw-bold text-uppercase text-muted">
+                                            <FontAwesomeIcon icon={faMapMarkerAlt} className="me-2" />Physical Address
+                                        </Label>
+                                        <Input
+                                            type="textarea"
+                                            rows="3"
+                                            className="form-control-lg border-2 shadow-sm"
+                                            placeholder="Enter street, city, and zip code"
+                                            value={user.address}
+                                            onChange={(e) => handleForm(e, "address")}
+                                            invalid={!!error?.error?.response?.data?.address}
+                                        />
+                                        <FormFeedback>{error.error?.response?.data?.address}</FormFeedback>
                                     </FormGroup>
-                                    <FormGroup row>
-                                        <Label for="exampleEmail" sm={3}>Email*</Label>
-                                        <Col sm={9}>
-                                            <Input type="email" name="email" value={user.email} placeholder="Ex: example@gmail.com" onChange={(e) => { handleForm(e, "email") }}
-                                                invalid={error?.error?.response?.data?.email ? true : false} />
 
-                                            <FormFeedback>
-                                                {error.error?.response?.data?.email}
-                                            </FormFeedback>
-                                        </Col>
+                                    {/* Role */}
+                                    <FormGroup className="mb-4">
+                                        <Label className="small fw-bold text-uppercase text-muted">Assign System Role</Label>
+                                        <Input
+                                            type="select"
+                                            className="form-control-lg border-2"
+                                            value={user.roles[0].name}
+                                            onChange={(e) => handleForm(e, "roles")}
+                                        >
+                                            <option value="ROLE_NORMAL">Normal User (View & Rate)</option>
+                                            <option value="ROLE_ADMIN">Administrator (Full Access)</option>
+                                        </Input>
                                     </FormGroup>
-                                    <FormGroup row>
-                                        <Label for="examplePassword" sm={3}>Password*</Label>
-                                        <Col sm={9}>
-                                            <Input type="password" name="password" value={user.password} placeholder="Ex: A&kl15o" onChange={(e) => { handleForm(e, "password") }}
-                                                invalid={error?.error?.response?.data?.password ? true : false} />
 
-                                            <FormFeedback>
-                                                {error.error?.response?.data?.password}
-                                            </FormFeedback>
-                                        </Col>
-                                    </FormGroup>
-                                    <FormGroup row>
-                                        <Label for="examplecontactNo" sm={3}>Contact No.*</Label>
-                                        <Col sm={9}>
-                                            <Input type="tel" name="contactNo" value={user.contactNo} placeholder="Ex: 1156389" onChange={(e) => { handleForm(e, "contactNo") }}
-                                                invalid={error?.error?.response?.data?.contactNo ? true : false} />
-
-                                            <FormFeedback>
-                                                {error.error?.response?.data?.contactNo}
-                                            </FormFeedback>
-                                        </Col>
-                                    </FormGroup><FormGroup row>
-                                        <Label for="exampleAddress" sm={3}>Address*</Label>
-                                        <Col sm={9}>
-                                            <Input type="text" name="address" value={user.address} placeholder="Ex: 101, las vigas" onChange={(e) => { handleForm(e, "address") }}
-                                                invalid={error?.error?.response?.data?.address ? true : false} />
-
-                                            <FormFeedback>
-                                                {error.error?.response?.data?.address}
-                                            </FormFeedback>
-                                        </Col>
-                                    </FormGroup>
-                                    <Container>
-                                        <Button type='submit' className='px-5 mb-2 text-white' color='info'>Submit</Button>
-                                        <Button type='reset' className='mx-2 px-5 mb-2' color='danger'>Reset</Button>
-
-                                    </Container>
+                                    <div className="d-flex gap-3 justify-content-end border-top pt-4">
+                                        <Button
+                                            type="button"
+                                            onClick={resetForm}
+                                            color="light"
+                                            className="px-5 py-2 fw-bold text-muted border"
+                                        >
+                                            Clear Form
+                                        </Button>
+                                        <Button
+                                            type="submit"
+                                            className="px-5 py-2 fw-bold shadow-sm"
+                                            style={{ backgroundColor: '#12b0cfff', border: 'none' }}
+                                        >
+                                            Register User
+                                        </Button>
+                                    </div>
                                 </Form>
                             </CardBody>
-
                         </Card>
                     </Col>
                 </Row>
-            </div>
-
+            </Container>
         </Base>
 
     )

@@ -12,38 +12,61 @@ import PrivateRoute from './Components/PrivateRoute';
 import DashBoard from './Components/DashBoard';
 import ViewHotel from './Components/ViewHotel';
 import ProfileInfo from './Components/ProfileInfo';
-import UpdateHotel from './Components/UpdateHotel';
 import AddHotel from './Components/AddHotel';
 import UpdateUser from './Components/UpdateUser';
 import AdminHome from './Components/AdminHome';
+import OAuth2Callback from './auth/OAuth2Callback';
 
 
 function App() {
 
   useEffect(() => {
-    document.title = "HRS || Hotel-Rating-System";
+    document.title = "HRS | Hotel-Rating-System";
   }, []);
 
   const router = createBrowserRouter([
+
+    //----------- Public Routes -------------------------
     { path: "/contact", element: <Contact /> },
     { path: "/login", element: <LogIn /> },
     { path: "/", element: <Home /> },
     { path: "/about", element: <About /> },
-    { path: "/signup", element: <Signup /> },
     { path: "/hotels", element: <Hotel /> },
+    { path: "/oauth2/callback", element: <OAuth2Callback /> },
 
+
+    //----------- Shared Protected Route (Both User and Admin) ----
+    {
+      path: '/', element: <PrivateRoute />, children: [
+         { path: "viewhotel/:hotelId/:userId", element: <ViewHotel /> },
+        { path: "profile-info", element: <ProfileInfo /> },
+        { path: "profile-edit/:id", element: <UpdateUser /> },
+      ]
+    },
+
+
+    //----------- Normal User Routes -------------------------
     {
       path: "/user", element: <PrivateRoute />, children: [
-        { path: "dashboard", element: <DashBoard /> },
-        { path: "viewhotel/:hotelId/:userId", element: <ViewHotel /> },
-        { path: "profile-info", element: <ProfileInfo /> },
-        { path: "edit/:hotelId", element: <UpdateHotel /> },
-        { path: "create/hotel", element: <AddHotel /> },
-        { path: "profile-edit/:id", element: <UpdateUser /> },
-            { path: "adminhome", element: <AdminHome /> },
+        { path: "dashboard", element: <DashBoard /> }
+        
+      ]
+    },
 
+
+    //----------- Admin Specific Routes -------------------------
+    {
+      path: "/admin", element: <PrivateRoute />, children: [
+
+        { path: "edit-hotel/:hotelId", element: <AddHotel /> },
+        { path: "add-hotel", element: <AddHotel /> },
+        { path: "add-user", element: <Signup /> },
+        { path: "profile-info/:userId", element: <ProfileInfo /> },
+        { path: ":section", element: <AdminHome /> }, //this is magic route for capturing users, hotels, and ratings
       ]
     }
+
+
   ]);
 
   return (

@@ -1,132 +1,190 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Base from './Base'
-import { Button, Card, CardBody, CardHeader, Col, Container, FormGroup, Input, Label, Row } from 'reactstrap'
-import { data, Form, useNavigate } from 'react-router-dom'
-import { createHotel, uploadImage } from '../services/Hotel-service'
+import { Button, Card, CardBody, CardHeader, Col, Container, FormGroup, Input, Label, Row, Spinner } from 'reactstrap'
+import { data, Form, useNavigate, useParams } from 'react-router-dom'
+import { createHotel, editHotelDetails, getHotelById, getHotelImage, uploadImage } from '../services/Hotel-service'
 import { toast } from 'react-toastify'
 
 const AddHotel = () => {
 
+    const { hotelId } = useParams();
+    const isEditMode = !!hotelId; // boolean helper
     const navigate = useNavigate();
 
-    const [addHotel, setAddHotel] = useState({
-        name: '',
-        about: '',
-        location: ''
-    });
+    const [loading, setLoading] = useState(false);
+    const [addHotel, setAddHotel] = useState({ name: '', about: '', location: '' });
+    const [image, setImage] = useState(null);
+    const [imagePreview, setImagePreview] = useState(null);
+
+    const themeColor = "#12b0cfff";
+
+    //------if Edit fetch hotel data -------
+    useEffect(() => {
+        document.title = "HRS | "+isEditMode ? "Update Hotel" : "Create New Hotel"
+        if (isEditMode) {
+            getHotelById(hotelId).then(async data => {
+                setAddHotel({ name: data.name, about: data.about, location: data.location });
+
+                //fetch image
+                if (data.imageName) {
+                    try {
+                        const url = await getHotelImage(data.imageName);
+                    setImagePreview(url);
+                    } catch (error) {
+                        console.error("Could not load existing hotel image!");
+                        
+                    }
+                }
+            }).catch(err => console.error("Error while loading hotel:", err))
+        }
+    }, [hotelId, isEditMode]);
 
     const handleForm = (e, fieldName) => {
         setAddHotel({ ...addHotel, [fieldName]: e.target.value })
-    }
+    };
 
-    const [image, setImage] = useState({ imageName: '' });
 
     const handleFile = (e) => {
+        const file = e.target.files[0];
         // console.log(e.target.files);
+        setImage(file);
+        if(file){
+            const reader = new FileReader();
+            reader.onloadend = () => setImagePreview(reader.result);
+            reader.readAsDataURL(file);
+        }
+    };
 
-        setImage(e.target.files[0]);
-    }
-
+    
 
     //---------------- submit form ----------------
 
-    const submitHotel = (event) => {
+    const submitHotel = async (event) => {
         event.preventDefault();
 
-        // calling server from api
-        createHotel(addHotel).then(data => {
-            //console.log(data);
+        //Basic validation
+        if (!addHotel.name || !addHotel.about || !addHotel.location) {
+            return toast.error("Please fill all field and select an image!");
+        }
 
-            toast.success("Hotel added successfully !!")
+        setLoading(true);
+        try {
 
-            //add image in server by api
-            uploadImage(image, data.hotelId).then(dataIma => {
-                // console.log(dataIma);
-                
-                // console.log("Image saved !");
-                // toast.success("Image uploaded successfully !!")
+            if (isEditMode) {
+                //UPDATE LOGIC
+                const resp = await editHotelDetails(addHotel, hotelId);
+                if (image) {
+                    await uploadImage(image, hotelId);
+                }
+                toast.success("Hotel updated successfully!");
 
-                navigate("/user/adminhome");
-                toast.success("Hotel added successfully!");
-            }).catch(error =>{
-                //console.log(error);
-                toast.error("Somthing went wrong! try again!!");
-            });
-        }).catch(err => {
-           // console.log(err);
-            toast.error("*** Hotel not added! try again!! ***");
-        });
+            }
+            else {
+                //CREATE LOGIC
+                const resp = await createHotel(addHotel);
+
+                //add image in server by api
+                await uploadImage(image, resp.hotelId)
+                toast.success("Hotel and Image added successfully !!")
+            }
+            navigate("/admin/dashboard");
+        } catch (error) {
+            console.error(error);
+            toast.error("Process failed! Please try again!!");
+        } finally {
+            setLoading(false);
+        }
     }
 
     return (
         <Base>
 
-            <div className="container mt-5 shadow-3" style={{ marginBottom: "5%", fontFamily: "serif" }}>
-                <Row className="mt-4">
+            <Container className="py-5">
+                <Row className="justify-content-center">
+                    <Col lg={8} md={10}>
+                        {/* Professional Card Styling */}
+                        <Card className="border-0 shadow-lg" style={{ borderRadius: '20px', overflow: 'hidden' }}>
+                            <div style={{ height: '8px', backgroundColor: themeColor }}></div>
 
-                    <Col sm={{ size: 8, offset: 2 }}>
+                            <CardBody className="p-5">
+                                <div className="text-center mb-5">
+                                    <h2 className="fw-bold text-dark">{isEditMode?"Update Hotel": "Create New Hotel"}</h2>
+                                    <p className="text-muted">Enter details to {isEditMode ? "edit" : "list a new"} property on the platform</p>
+                                </div>
 
-                        <Card color="#fff" style={{ border: "1px solid #0dcaf0" }}>
-
-                            <CardHeader className="border-1 text-white" color='dark' style={{ backgroundColor: "#0dcaf0" }}>
-                                <h3>Create Hotel here !!</h3>
-                            </CardHeader>
-
-                            {/* {JSON.stringify(addHotel)} */}
-                            <CardBody>
                                 <Form onSubmit={submitHotel}>
-
-                                    <FormGroup row>
-                                        <Label for="exampleName" sm={3}>Name*</Label>
-                                        <Col sm={9}>
-                                            <Input type="text" name="name" value={addHotel.name} placeholder="Enter hotel name" onChange={(e) => { handleForm(e, "name") }}
-                                            />
-
+                                    <Row>
+                                        <Col md={12}>
+                                            <FormGroup className="mb-4">
+                                                <Label className="fw-semibold small text-uppercase text-muted">Hotel Name</Label>
+                                                <Input
+                                                    type="text"
+                                                    value={addHotel.name}
+                                                    placeholder="e.g. Grand Plaza Resort"
+                                                    className="form-control-lg border-2 shadow-none"
+                                                    onChange={(e) => handleForm(e, "name")}
+                                                    style={{ borderRadius: '10px', fontSize: '1rem' }}
+                                                    required
+                                                />
+                                            </FormGroup>
                                         </Col>
-                                    </FormGroup>
-
-                                    <FormGroup row>
-                                        <Label for="exampleAddress" sm={3}>Location*</Label>
-                                        <Col sm={9}>
-                                            <Input type="text" name="location" value={addHotel.location} placeholder="Ex: 101, las vigas" onChange={(e) => { handleForm(e, "location") }}
-                                            />
-
-
+                                        <Col md={12}>
+                                            <FormGroup className="mb-4">
+                                                <Label className="fw-semibold small text-uppercase text-muted">Location</Label>
+                                                <Input
+                                                    type="text"
+                                                    value={addHotel.location}
+                                                    placeholder="City, Country"
+                                                    className="form-control-lg border-2 shadow-none"
+                                                    onChange={(e) => handleForm(e, "location")}
+                                                    style={{ borderRadius: '10px', fontSize: '1rem' }}
+                                                    required
+                                                />
+                                            </FormGroup>
                                         </Col>
-                                    </FormGroup>
-
-                                    <FormGroup row>
-                                        <Label for="examplecontactNo" sm={3}>About*</Label>
-                                        <Col sm={9}>
-                                            <Input type="textarea" name="about" style={{ height: "150px" }} value={addHotel.about} placeholder="Enter facility " onChange={(e) => { handleForm(e, "about") }}
-                                            />
-
-
+                                        <Col md={12}>
+                                            <FormGroup className="mb-4">
+                                                <Label className="fw-semibold small text-uppercase text-muted">About Property</Label>
+                                                <Input
+                                                    type="textarea"
+                                                    value={addHotel.about}
+                                                    placeholder="Describe the facilities and ambiance..."
+                                                    style={{ height: "120px", borderRadius: '10px', resize: 'none' }}
+                                                    className="border-2 shadow-none"
+                                                    onChange={(e) => handleForm(e, "about")}
+                                                    required
+                                                />
+                                            </FormGroup>
                                         </Col>
-                                    </FormGroup>
-
-                                    <FormGroup row>
-                                        <Label for="file" sm={3}>File*</Label>
-                                        <Col sm={9}>
-                                            <Input type="file" name="file" id='file' onChange={handleFile}
-                                            />
-
+                                        <Col md={12}>
+                                            <FormGroup className="mb-5">
+                                                <Label className="fw-semibold small text-uppercase text-muted">{isEditMode ? "Change Cover Image (Optional)" : "Upload Cover Image"}</Label>
+                                                <div className="p-3 border-2 border-dashed rounded-3 text-center bg-light" style={{ borderStyle: 'dashed' }}>
+                                                    <Input type="file" onChange={handleFile} className="form-control border-0 bg-transparent" />
+                                                    {imagePreview && (
+                                                <img src={imagePreview} alt="Preview" className="rounded shadow-sm ms-3" style={{ width: '80px', height: '50px', objectFit: 'cover' }} />
+                                            )}
+                                                    <small className="text-muted">Max file size: 5MB (JPG, PNG)</small>
+                                                </div>
+                                            </FormGroup>
                                         </Col>
-                                    </FormGroup>
+                                    </Row>
 
-                                    <Container>
-                                        <Button type='submit' className='px-5 mb-2 text-white' color='info'>Submit</Button>
-                                        <Button type='reset' className='mx-2 px-5 mb-2' color='danger'>Reset</Button>
-
-                                    </Container>
+                                    <div className="d-flex justify-content-between">
+                                        <Button color="light" onClick={() => navigate(-1)} className="px-4 py-2 fw-bold">Cancel</Button>
+                                        <Button 
+                                            type="submit" disabled={loading} className="px-5 py-2 fw-bold text-white shadow-sm border-0" 
+                                            style={{ backgroundColor: themeColor, borderRadius: '10px' }}
+                                        >
+                                            {loading ? <Spinner size="sm" /> : (isEditMode ? "Save Changes" : "Publish Hotel")}
+                                        </Button>
+                                    </div>
                                 </Form>
                             </CardBody>
-
                         </Card>
                     </Col>
                 </Row>
-            </div>
-
+            </Container>
         </Base>
 
     )

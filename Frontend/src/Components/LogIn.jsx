@@ -1,116 +1,175 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Form, FormGroup, Input, Label, Row } from 'reactstrap';
+import { Button, Card, CardBody, CardHeader, CardTitle, Col, Container, Form, FormFeedback, FormGroup, Input, Label, Row } from 'reactstrap';
 import Base from './Base';
+import LogInButton from './LogInButton';
+import { faFacebookF, faGithub, faGooglePlusG, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import './login.css';
+import { register } from '../services/User-service';
 import { toast } from 'react-toastify';
-import { userLogIn } from '../services/User-service';
-import { doLoggedIn } from '../auth/Index';
-import UserContext from '../Context/UserContext';
 
 const LogIn = () => {
 
-    //----- initial set of user context
-    const userContextData = useContext(UserContext);
+    useEffect(() => {
+          document.title = "HRS | Sign In";
+        }, []);
 
-    //------setting initial state----------
     const [user, setUser] = useState({
-        username:"",
-        password:""
+        name: '',
+        email: '',
+        password: '',
+        contactNo: '',
+        address: ''
     });
 
-     const [error, setError] = useState({error:{}, isError:false});
-     const navigate = useNavigate();
+    const [error, setError] = useState({
+        error: {},
+        isError: false
+    });
+    const resetForm = () => {
+        setUser({
+            name: '',
+            email: '',
+            password: '',
+            contactNo: '',
+            address: ''
+        });
+    };
+    const handleForm = (e, fieldName) => {
+        setUser({ ...user, [fieldName]: e.target.value });
+    };
 
-    //-------binding field name dynamically
-    const handleForm = (e, fieldName) =>{
-            setUser({...user, [fieldName]:e.target.value});
-    }
-
-    //-------handle form from api-----
-    const formSubmit = (event)=>{
+    const submitRegister = (event) => {
         event.preventDefault();
 
-        if (user.username==="" || user.password==="") {
-            return;
-        }
-
-        userLogIn(user).then(data =>{
+        register(user).then(data => {
             console.log(data);
-
-            doLoggedIn(data, ()=>{
-            console.log("data store in localStorage");
-                userContextData.setUser({
-                    data: data,
-                    login: true
-                });
-    
-            });
-  
-              data.userDto.roles.map(role => {
-                //console.log(role.id);
-                
-                if (role.id===501) {
-                     navigate("/user/dashboard");
-                }else{
-                     navigate("/user/adminhome");
-                }
-              })  
-         
-           
-            toast.success("LogIn successfully !");
-        }).catch(err =>{
-            setError({error:err, isError:true});
+            toast.success("User Register Successfully !");
+            resetForm();
+        }).catch(err => {
+            setError({ error: err, isError: true })
             console.log(error);
-            
-            toast.error("Invalid Username or Password !!");
-        })
-    }
+            toast.error("Something went wrong !!");
+        });
+    };
+
+    const [isActive, setIsActive] = useState(false);
     return (
         <Base>
 
-           <div className="container shadow-3" style={{marginTop:"5%", marginBottom:"7%", fontFamily:"serif"}}>
-                <Row className="mt-4">
+            <div className={'auth-page-wrapper'}>
+                <div className={`auth-container ${isActive ? "active" : ""}`}>
 
-                    <Col sm={{ size: 8, offset: 2 }}>
+    {/* -------------------------------Sign up ------------------------------------------------------------- */}
+                    <div className="form-container sign-up">
+                        <Form onSubmit={submitRegister}>
+                            <h1>Create Account Here!!</h1>
 
-                        <Card color="#fff" style={{border:"1px solid #0dcaf0"}}>
+                            <div className='social-icons'>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faGooglePlusG} />  </Link>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faFacebookF} />  </Link>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faGithub} />  </Link>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faLinkedin} />  </Link>
 
-                            <CardHeader className="border-1 text-white" style={{backgroundColor:"#0dcaf0"}}>
-                                <h3>Login here !!</h3>
-                            </CardHeader>
+                            </div>
 
-                    {/* {JSON.stringify(user)} */}
-                    <CardBody>
-                        <Form onSubmit={formSubmit}>
-
-                            <FormGroup row>
-                                <Label for="exampleEmail" sm={3}>Username*</Label>
-                                <Col sm={9}>
-                                    <Input type="email" name="username" value={user.username} placeholder="Ex: example@gmail.com" onChange={(e)=> {handleForm(e, "username")}} />
-                                </Col>
-                            </FormGroup>
-                            <FormGroup row>
-                                <Label for="examplePassword" sm={3}>Password*</Label>
-                                <Col sm={9}>
-                                    <Input type="password" name="password" value={user.password} placeholder="Ex: A&kl15o" onChange={(e)=> {handleForm(e, "password")}} />
-
-
-                                </Col>
+                            <FormGroup>
+                                {/* <Label for="exampleName" sm={3}>Name*</Label> */}
+                                <Input type="text" name="name" value={user.name} placeholder="Name" onChange={(e) => { handleForm(e, "name") }}
+                                    invalid={error?.error?.response?.data?.name ? true : false} />
+                                <FormFeedback>
+                                    {error.error?.response?.data?.name}
+                                </FormFeedback>
                             </FormGroup>
 
-                            {/* <Container> */}
-                                <Button type='submit' className='px-5 mb-2 text-white' color='info '>LogIn</Button> or 
-                                <Button tag={Link} to={'/signup'} className='mx-2 px-5 mb-2 text-white' color='info'>Sign Up</Button>
+                            <FormGroup>
+                                {/* <Label for="exampleEmail" sm={3}>Email*</Label> */}
+                                <Input type="email" name="email" value={user.email} placeholder="Email" onChange={(e) => { handleForm(e, "email") }}
+                                    invalid={error?.error?.response?.data?.email ? true : false} />
 
-                            {/* </Container> */}
+                                <FormFeedback>
+                                    {error.error?.response?.data?.email}
+                                </FormFeedback>
+                            </FormGroup>
+
+                            <FormGroup>
+                                {/* <Label for="examplePassword" sm={3}>Password*</Label> */}
+                                <Input type="password" name="password" value={user.password} placeholder="Password" onChange={(e) => { handleForm(e, "password") }}
+                                    invalid={error?.error?.response?.data?.password ? true : false} />
+
+                                <FormFeedback>
+                                    {error.error?.response?.data?.password}
+                                </FormFeedback>
+                            </FormGroup>
+
+                            <FormGroup>
+                                {/* <Label for="examplecontactNo" sm={3}>Contact No.*</Label> */}
+                                <Input type="tel" name="contactNo" value={user.contactNo} placeholder="Mobile Number" onChange={(e) => { handleForm(e, "contactNo") }}
+                                    invalid={error?.error?.response?.data?.contactNo ? true : false} />
+
+                                <FormFeedback>
+                                    {error.error?.response?.data?.contactNo}
+                                </FormFeedback>
+                            </FormGroup>
+
+                            <FormGroup>
+                                {/* <Label for="exampleAddress" sm={3}>Address*</Label> */}
+                                <Input type="text" name="address" value={user.address} placeholder="Address" onChange={(e) => { handleForm(e, "address") }}
+                                    invalid={error?.error?.response?.data?.address ? true : false} />
+
+                                <FormFeedback>
+                                    {error.error?.response?.data?.address}
+                                </FormFeedback>
+                            </FormGroup>
+                            <Container>
+                                <Button type='submit' className='px-5 mb-2 text-white' color='info'>Sign Up</Button>
+                                {/* <Button type='reset' className='mx-2 px-5 mb-2' color='danger'>Reset</Button> */}
+                            </Container>
                         </Form>
-                    </CardBody>
+                    </div>
+    {/* ---------------------------------------------------------------------------------------------------- */}
 
-                </Card>
-                </Col>
-                </Row>
+    {/* -------------------------- Login ----------------------------------------------------------------- */}
+
+                    <div className="form-container sign-in">
+                        <div className="signin-content">
+                            <h1>Sign In</h1>
+
+                            <div className='social-icons'>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faGooglePlusG} />  </Link>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faFacebookF} />  </Link>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faGithub} />  </Link>
+                                <Link to={'#'} className='icon'>  <FontAwesomeIcon icon={faLinkedin} />  </Link>
+                            </div>
+
+                            <h4>Click here the Login button with OAuth2.O flow</h4>
+
+                            <LogInButton />
+                        </div>
+                    </div>
+     {/* ---------------------------------------------------------------------------------------------------- */}
+
+            {/* ------------------ The Toggle Section -----------------------------------------------*/}
+                    <div className="toggle-container">
+                        <div className="toggle">
+                            <div className="toggle-panel toggle-left">
+                                <h1>Welcome Back!</h1>
+                                <p>Enter your personal details to give each hotel feedback</p>
+
+                                <Button className='hidden px-5' id='login' onClick={() => setIsActive(false)}>Sign In</Button>
+                            </div>
+
+                            <div className="toggle-panel toggle-right">
+                                <h1>Hello, Friend!</h1>
+                                <p>Register with personal details to use all of site features</p>
+                                <Button className='hidden px-5' id='register' onClick={() => setIsActive(true)}>Sign Up</Button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
-
         </Base>
     )
 }

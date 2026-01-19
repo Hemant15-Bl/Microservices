@@ -1,52 +1,25 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import Base from './Base';
 import { data, Link, useParams } from 'react-router-dom';
-import { getHotelById } from '../services/Hotel-service';
+import { getHotelById, getHotelImage } from '../services/Hotel-service';
 import { toast } from 'react-toastify';
-import { Button, Card, CardBody, CardFooter, CardImg, CardSubtitle, CardText, CardTitle, Col, Form, Input, Row } from 'reactstrap';
+import { Badge, Button, Card, CardBody, CardFooter, CardImg, CardSubtitle, CardText, CardTitle, Col, Container, Form, Input, Row } from 'reactstrap';
 import Hotel from './Hotel';
-import { getAllRatings, getRatingsByHotelId, saveRatings } from '../services/Rating-service';
-import { getCurrentUserDetails, getToken } from '../auth/Index';
+import { deleteRating, getAllRatings, getRatingsByHotelId, saveRatings } from '../services/Rating-service';
 import { loadUserById } from '../services/User-service';
+import UserContext from '../Context/UserContext';
+import Swal from 'sweetalert2';
 
 const ViewHotel = () => {
 
-  //------binding hotelId in a variable which coming from DashBoard
-  const { hotelId } = useParams("hotelId");
-  const { userId } = useParams("userId");
+  const { hotelId, userId } = useParams("hotelId");
+  const themeColor = "#12b0cfff";
 
 
-  //------ initialize hotel initial state -------
-  const [hotel, setHotel] = useState(undefined);
-
-  //----- load hotel by hotelId---------
-  useEffect(() => {
-    getHotelById(hotelId).then(data => {
-      setHotel(data);
-      //console.log(data);
-      toast.success("Hotel loaded successfully!")
-    }).catch(err => {
-      //console.log(err);
-      toast.error("Something wen wrong try again !!");
-    })
-  }, [hotelId]);
-
-  //------- get all ratings by hotelId---------
+  const [hotel, setHotel] = useState(null);
   const [ratings, setRatings] = useState([]);
-
-  useEffect(() => {
-    getRatingsByHotelId(hotelId).then(data => {
-      setRatings(data);
-      //console.log(data);
-      toast.success("Rating loaded successfully!")
-    }).catch(err => {
-      //console.log(err);
-      toast.error("*** Can not load the ratings ***");
-    })
-  }, []);
-
-  // --------- Add rating-----------------
-
+  const [users, setUsers] = useState({});
+  const [imageUrl, setImageUrl] = useState(null);
   const [addRating, setAddRating] = useState({
     hotelId: hotelId,
     userId: userId,
@@ -54,183 +27,193 @@ const ViewHotel = () => {
     rating: ''
   });
 
+  const {user} = useContext(UserContext);
+  const isAdmin = user.data?.roles?.some(r => r.name === "ROLE_ADMIN");
+
+
+  //----- load hotel and rating data---------
+  useEffect(() => {
+    getHotelById(hotelId).then(data => setHotel(data)).catch(err => toast.error("Error loading hotel"));
+    getRatingsByHotelId(hotelId).then(data => setRatings(data)).catch(err => console.error("Failed to load rating:"));
+    document.title = "HRS | Hotel Details";
+  }, [hotelId]);
+
+
+
   //---- dynamically change inputs
   const handleForm = (e, fieldName) => {
     setAddRating({ ...addRating, [fieldName]: e.target.value });
   };
 
-  //------ after submit rating reset inputs
-  const resetForm = () => {
-    setAddRating({
-      hotelId: hotelId,
-      userId: userId,
-      feedback: '',
-      rating: ''
-    });
-  };
-
   //---------- adding rating to rating api
-
   const submitRating = (event) => {
     event.preventDefault();
 
+    // Convert to number and validate
+    const ratingValue = Number(addRating.rating);
+
+    if (!addRating.feedback.trim()) {
+      return toast.error("Please enter a feedback message");
+    }
+
+    if (ratingValue < 1 || ratingValue > 10 || isNaN(ratingValue)) {
+      return toast.warning("Please provide a rating between 1 and 5 stars");
+    }
     saveRatings(addRating).then(data => {
-      //console.log(data);
-      
-      toast.success("Rating added successfully!");
+      toast.success("Thankyou For Your Feedback!");
       setRatings(prevRating => [...prevRating, data]);
-      resetForm();
+      setAddRating({ hotelId: hotelId, userId: userId, feedback: '', rating: '' });
     }).catch(err => {
       // console.log(err);
-      toast.error("Rating not added!!");
-    })
-  }
+      toast.error("Submission failed!!");
+    });
+  };
 
-
-  //----------get users by Id-----
-  const [users, setUsers] = useState({});
 
 
   const getUsers = (uid) => {
     if (!uid || users[uid]) return;
-
-    loadUserById(uid).then(data => {
-      setUsers(prev => ({ ...prev, [uid]: data }));
-      //console.log(data);
-
-    }).catch(err => {
-      //console.log(err);
-    })
+    loadUserById(uid).then(data => setUsers(prev => ({ ...prev, [uid]: data }))).catch(err => console.log("Failed to load users"));
   };
 
 
   //-------------- get image --------------------------
-  const [imageUrl, setImageUrl] = useState(null);
-
   useEffect(() => {
-
-    if (!hotel || !hotel.imageName) {
-      return;
+    if (hotel?.imageName) {
+      getHotelImage(hotel.imageName).then(url => setImageUrl(url));
     }
-
-    const fetchImage = async () => {
-      const token = getToken();
-
-      const response = await fetch("http://localhost:8084/hotel/image/" + hotel.imageName, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-
-        },
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = URL.createObjectURL(blob);
-        setImageUrl(url);
-      } else {
-        console.log("Failed to fetch image!!");
-
-      }
-    };
-
-    fetchImage();
-
-    return () => {
-      if (imageUrl) URL.revokeObjectURL(imageUrl);
-    }
+    return () => imageUrl && URL.revokeObjectURL(imageUrl);
   }, [hotel]);
 
-  useEffect(() => {
-      document.title = "HRS || Hotel Detail";
-    }, []);
+  //-----------delete Rating with alert -------
+  const removeRating = (ratingId) =>{
+      try {
+        Swal.fire({
+          title:"Remove Rating?",
+          text:"This action cannot be undone!",
+          icon:'warning',
+          showCancelButton: true,
+          confirmButtonColor:'#12b0cfff',
+          cancelButtonColor:'#d33',
+          confirmButtonText:"Yes, delete it!"
+        }).then((result) =>{
+          if (result.isConfirmed) {
+            deleteRating(ratingId).then(() => {
+              setRatings(ratings.filter(r => r.ratingId !== ratingId));
+              Swal.fire("Deleted!", "Rating has been removed.","success");
+            }).catch(err=> {
+                Swal.fire("Error", "Could not delete rating from server.", "error");
+            })
+          }
+        });
+      } catch (error) {
+        console.error("Error while deleting rating!");
+      }
+  }
+
+
+  if (!hotel) return <Base><div className="text-center py-5 mt-5">Loading Hotel Details...</div></Base>;
   return (
     <Base>
-      <div className='text-center p-0 container mt-4' style={{ fontFamily: "serif" }}>
-        <h1>Hotel Details</h1>
+      {/* HERO SECTION */}
+      <div className="hotel-hero" style={{
+        height: '450px',
+        backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), url(${imageUrl || 'https://via.placeholder.com/1200x500'})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        display: 'flex',
+        alignItems: 'flex-end',
+        paddingBottom: '40px',
+        color: 'white',
+        marginTop: (!isAdmin)? '40px':'0'
+      }}>
+        <Container>
+          <Badge color="warning" className="mb-2">FEATURED PROPERTY</Badge>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold' }}>{hotel.name}</h1>
+          <p style={{ fontSize: '1.2rem' }}><i className="bi bi-geo-alt-fill"></i> {hotel.location}</p>
+        </Container>
+      </div>
 
-        {/* -------------- show hotel details ------------------ */}
+      <Container className="mt-n5" style={{ position: 'relative', zIndex: 2 }}>
         <Row>
+          {/* LEFT SIDE: DETAILS */}
+          <Col lg={8}>
+            <Card className="shadow-lg border-0 mb-4" style={{ borderRadius: '15px' }}>
+              <CardBody className="p-4 p-md-5">
+                <h3 className="fw-bold mb-4">About the Property</h3>
+                <div className="hotel-description text-secondary" style={{ lineHeight: '1.8' }}
+                  dangerouslySetInnerHTML={{ __html: hotel.about }} />
 
-          {hotel && (
+                <hr className="my-5" />
 
-            <Col className='mb-3 boader-2 shadow-4' md={{ size: 12 }}>
-              <Card className='bg-body-secondary py-4'>
-                <CardImg
-                  alt="Unavailable"
-                  src={imageUrl}
-                  top
-                  className='mx-auto d-block'
-                  style={{ maxHeight: '200', maxWidth: "50%" }} />
-                <CardBody>
-                  <CardTitle tag="h1">
-                    {hotel.name}
-                  </CardTitle>
-                  <CardSubtitle
-                    className="mb-2 text-muted"
-                    tag="h5"
-                  >
-                    {hotel.location}
-                  </CardSubtitle>
-                  <CardText dangerouslySetInnerHTML={{ __html: hotel.about }} />
+                <h4 className="fw-bold mb-4">Guest Reviews ({ratings.length})</h4>
+                {ratings.length > 0 ? ratings.map((r, i) => {
+                  getUsers(r.userId);
+                  return (
+                    <div key={i} className="mb-4 p-3 border-bottom">
+                      <div className="d-flex justify-content-between">
+                        <h6 className="fw-bold text-dark">{users[r.userId]?.name || "Verified Guest"}</h6>
+                        <span className="text-warning">
+                          {/* Fill stars based on rating */}
+                          {"★".repeat(Math.max(0, Math.min(10, r.rating)))}
 
+                          {/* Fill remaining empty stars up to 10 */}
+                          {"☆".repeat(Math.max(0, 10 - Math.min(10, r.rating)))}
+                        </span>
+                      </div>
+                      <p className="text-muted small mb-0 mt-1">{r.feedback}</p>
+                      
+               {user.login && isAdmin && <Button className='text-danger p-0 ms-2' color='link' onClick={()=>{removeRating(r.ratingId)}} title="Delete Review"><i className="bi bi-trash3-fill" style={{ fontSize: '1.2rem' }}></i></Button>}
+                    </div>
+                  );
+                }) : <p className="text-muted">No reviews yet. Be the first to rate!</p>}
+              </CardBody>
+            </Card>
+          </Col>
 
-                </CardBody>
-              </Card>
-
-            </Col>
-
-          )}
-
-        </Row>
-
-        {/* -------------- show ratings details ------------------ */}
-
-        <Row className='mt-4'>
-          <Col md={{ size: 9, offset: 1 }} className='shadow-3'>
-            <h2>Ratings ({ratings ? ratings.length : 0})</h2>
-            {ratings.length > 0 ? ratings.map((rating, idx) => {
-
-              // fetch user in rating
-              getUsers(rating.userId)
-              return (
-
-                <Card className='mt-2 boader-1 p-0 bg-body-secondary' key={idx}>
-                  <CardBody className='text-start'>
-                    <CardText> Feedback : {rating.feedback}  </CardText>
-                    <hr />
-                    <CardText> Rate : {rating.rating}  </CardText>
-                    <CardText className='text-end mt-0 mb-0' >-by {users[rating.userId]?.name || "Loading..."}</CardText>
-
-                  </CardBody>
-                </Card>
-
-              )
-            }
-            ) : <h3>No ratings avaible</h3>}
-
-
-
-            {/* --------------------- Adding Rating  --------------------------*/}
-            <Card className='mt-4 boader-0 shadow-3'>
-              {/* {JSON.stringify(addRating)} */}
-              <CardBody>
+          {/* RIGHT SIDE: ACTION/RATING CARD */}
+          <Col lg={4}>
+            <Card className="shadow-lg border-0 sticky-top" style={{ borderRadius: '15px', top: '100px' }}>
+              <CardBody className="p-4">
+                <h5 className="fw-bold mb-3">Rate your Stay</h5>
                 <Form onSubmit={submitRating}>
-                  <Input type='hidden' value={hotelId} name='hotelId' onChange={(e) => handleForm(e, "hotelId")} />
-                  <Input type='hidden' value={userId} name='userId' onChange={(e) => handleForm(e, "userId")} />
-                  <Input type='textarea' className='mb-2' value={addRating.feedback} placeholder='Enter feedback here' name='feedback' onChange={(e) => handleForm(e, "feedback")} />
-                  <Input type='number' value={addRating.rating} placeholder='Rate here ' name='rating' onChange={(e) => handleForm(e, "rating")} />
-                  <Button type='submit' color='success' className='mt-2' outline>
-                    Add Rating
+                  <div className="mb-3 text-center">
+                    <div className="rating-stars mb-2">
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(star => (
+                        <span
+                          key={star}
+                          onClick={() => setAddRating({ ...addRating, rating: star })}
+                          style={{
+                            cursor: 'pointer',
+                            fontSize: '1.4rem',
+                            color: star <= addRating.rating ? '#ffc107' : '#e4e5e9'
+                          }}
+                        >★</span>
+                      ))}
+                    </div>
+                    <small className="text-muted">Click a star to rate</small>
+                  </div>
+                  <Input
+                    type='textarea'
+                    rows="4"
+                    className='mb-3 border-0 bg-light'
+                    value={addRating.feedback}
+                    placeholder='How was your experience?'
+                    onChange={(e) => setAddRating({ ...addRating, feedback: e.target.value })}
+                  />
+                  <Button
+                    block
+                    type='submit'
+                    style={{ backgroundColor: themeColor, border: 'none', padding: '12px' }}
+                  >
+                    Submit Review
                   </Button>
                 </Form>
               </CardBody>
             </Card>
-
           </Col>
         </Row>
-
-
-      </div>
+      </Container>
 
     </Base>
   )

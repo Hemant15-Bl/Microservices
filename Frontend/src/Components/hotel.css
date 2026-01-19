@@ -1,0 +1,12 @@
+.hotel-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important;
+}
+
+.hotel-card img {
+  transition: transform 0.5s ease;
+}
+
+.hotel-card:hover img {
+  transform: scale(1.1);
+}
