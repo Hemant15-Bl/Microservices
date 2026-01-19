@@ -53,4 +53,4 @@ npm run dev
 
 # OAuth2.O Authorization Flow Block-Diagram
 
-![image](https://github.com/user-attachments/assets/...)
+![image](https://github.com/Screenshot 2026-01-02 103702.png/assets/...)
