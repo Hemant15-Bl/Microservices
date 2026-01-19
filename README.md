@@ -57,3 +57,31 @@ npm run dev
 
 ## User Panel
 ![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/landingPage.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/Login.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/Signup.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/Contact.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/About.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/User-dashboard.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/View-hotel-user.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/Profile.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/Update.png?raw=true)
+
+## Admin Panel
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/Admin-dashboard.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/users.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/hotels.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/ratings.png?raw=true)
+
+![image alt](https://github.com/Hemant15-Bl/Microservices/blob/master/View-hotel-user.png?raw=true)
