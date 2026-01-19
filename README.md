@@ -49,3 +49,8 @@ npm run dev
 - Eureka Dashboard: http://localhost:8761
 - API Gateway: http://localhost:8084
 - Frontend UI: http://localhost:5173 (Vite)
+
+
+# OAuth2.O Authorization Flow Block-Diagram
+
+![image](https://github.com/user-attachments/assets/...)
