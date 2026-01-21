@@ -43,11 +43,12 @@ The repository is organized into two main sections:
 3. Start AuthServer.
 4. Start the remaining microservices (User, Hotel, Rating, Gateway).
 ### 2. Frontend Setup
-Bash
 
+````Bash
 cd Frontend
 npm install
 npm run dev
+````
 
 ## Service Endpoints
 - Eureka Dashboard: http://localhost:8761
