@@ -3,8 +3,8 @@ Welcome to the Hotel Rating System. This is a distributed full-stack application
 
 ## 🏗️ Project Structure
 The repository is organized into two main sections:
-- /Backend: Spring Boot microservices, security, and infrastructure.
-- /Frontend: React.js application for users and admins.
+- **/Backend:** Spring Boot microservices, security, and infrastructure.
+- **/Frontend:** React.js application for users and admins.
 
 ---
 
