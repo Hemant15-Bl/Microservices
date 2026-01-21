@@ -1,11 +1,24 @@
 # 🏨 Hotel Rating System
 Welcome to the Hotel Rating System. This is a distributed full-stack application built using a Microservices architecture. It allows users to discover hotels, manage bookings, and provide ratings through a modern React interface, secured by a dedicated OAuth2/JWT Authentication server.
 
-## 🏗️ Project Structure
+## 📂 Project Structure
 The repository is organized into two main sections:
 - **/Backend:** Spring Boot microservices, security, and infrastructure.
 - **/Frontend:** React.js application for users and admins.
 
+```text
+hotel-ratings-app (root)
+├── backend/
+│   ├── service-registry/    # Eureka Server
+│   ├── config-server/       # Centralized Config
+│   ├── api-gateway/         # Routing & Auth Filter
+│   ├── auth-server/         # OAuth2.0 Logic
+│   ├── user-service/        # MySQL
+│   ├── hotel-service/       # PostgreSQL
+│   └── rating-service/      # MongoDB
+└── frontend/
+    └── hotel-rating-ui/     # React.js
+```
 ---
 
 ## 🛠️ Tech Stack
